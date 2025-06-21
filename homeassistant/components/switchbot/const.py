@@ -48,8 +48,6 @@ class SupportedModels(StrEnum):
     LOCK_ULTRA = "lock_ultra"
     AIR_PURIFIER = "air_purifier"
     AIR_PURIFIER_TABLE = "air_purifier_table"
-    FLOOR_LAMP = "floor_lamp"
-    STRIP_LIGHT_3 = "strip_light_3"
 
 
 CONNECTABLE_SUPPORTED_MODEL_TYPES = {
@@ -77,8 +75,6 @@ CONNECTABLE_SUPPORTED_MODEL_TYPES = {
     SwitchbotModel.LOCK_ULTRA: SupportedModels.LOCK_ULTRA,
     SwitchbotModel.AIR_PURIFIER: SupportedModels.AIR_PURIFIER,
     SwitchbotModel.AIR_PURIFIER_TABLE: SupportedModels.AIR_PURIFIER_TABLE,
-    SwitchbotModel.FLOOR_LAMP: SupportedModels.FLOOR_LAMP,
-    SwitchbotModel.STRIP_LIGHT_3: SupportedModels.STRIP_LIGHT_3,
 }
 
 NON_CONNECTABLE_SUPPORTED_MODEL_TYPES = {
@@ -107,8 +103,6 @@ ENCRYPTED_MODELS = {
     SwitchbotModel.LOCK_ULTRA,
     SwitchbotModel.AIR_PURIFIER,
     SwitchbotModel.AIR_PURIFIER_TABLE,
-    SwitchbotModel.FLOOR_LAMP,
-    SwitchbotModel.STRIP_LIGHT_3,
 }
 
 ENCRYPTED_SWITCHBOT_MODEL_TO_CLASS: dict[
@@ -122,8 +116,6 @@ ENCRYPTED_SWITCHBOT_MODEL_TO_CLASS: dict[
     SwitchbotModel.LOCK_ULTRA: switchbot.SwitchbotLock,
     SwitchbotModel.AIR_PURIFIER: switchbot.SwitchbotAirPurifier,
     SwitchbotModel.AIR_PURIFIER_TABLE: switchbot.SwitchbotAirPurifier,
-    SwitchbotModel.FLOOR_LAMP: switchbot.SwitchbotStripLight3,
-    SwitchbotModel.STRIP_LIGHT_3: switchbot.SwitchbotStripLight3,
 }
 
 HASS_SENSOR_TYPE_TO_SWITCHBOT_MODEL = {
