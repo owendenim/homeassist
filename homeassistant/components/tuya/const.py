@@ -82,6 +82,7 @@ class WorkMode(StrEnum):
 class DPType(StrEnum):
     """Data point types."""
 
+    BITMAP = "Bitmap"
     BOOLEAN = "Boolean"
     ENUM = "Enum"
     INTEGER = "Integer"
@@ -216,6 +217,7 @@ class DPCode(StrEnum):
     HUMIDITY_SET = "humidity_set"  # Humidity setting
     HUMIDITY_VALUE = "humidity_value"  # Humidity
     IPC_WORK_MODE = "ipc_work_mode"
+    LEAKAGE_CURRENT = "leakage_current"
     LED_TYPE_1 = "led_type_1"
     LED_TYPE_2 = "led_type_2"
     LED_TYPE_3 = "led_type_3"
