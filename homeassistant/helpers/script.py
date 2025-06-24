@@ -863,7 +863,11 @@ class _ScriptRun:
 
     @async_trace_path("repeat")
     async def _async_repeat_step(self) -> None:  # noqa: C901
-        """Repeat a sequence."""
+        """
+        Executes a repeat action in a script, supporting count, for_each, while, and until repeat types.
+        
+        The method manages repeat variables for each iteration, evaluates repeat conditions, and executes the associated sequence. It handles template rendering for repeat parameters, enforces iteration limits to prevent infinite loops, and restores previous repeat variables after completion. Raises an exception if repeat configuration is invalid or if iteration limits are exceeded.
+        """
         description = self._action.get(CONF_ALIAS, "sequence")
         repeat = self._action[CONF_REPEAT]
 
@@ -883,6 +887,13 @@ class _ScriptRun:
         warned_too_many_loops = False
 
         async def async_run_sequence(iteration: int, extra_msg: str = "") -> None:
+            """
+            Executes a single iteration of the repeat sequence within a script.
+            
+            Parameters:
+                iteration (int): The current iteration number of the repeat loop.
+                extra_msg (str): Optional additional message to append to the log entry.
+            """
             if _LOGGER.isEnabledFor(logging.DEBUG):
                 self._log("Repeating %s: Iteration %i%s", description, iteration, extra_msg)
             with trace_path("sequence"):
