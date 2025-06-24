@@ -309,10 +309,11 @@ def _select_unused_attributes_ids(
             state[0] for state in session.execute(query(attributes_ids_chunk)).all()
         )
     to_remove = attributes_ids - seen_ids
-    _LOGGER.debug(
-        "Selected %s shared attributes to remove",
-        len(to_remove),
-    )
+    if _LOGGER.isEnabledFor(logging.DEBUG):
+        _LOGGER.debug(
+            "Selected %s shared attributes to remove",
+            len(to_remove),
+        )
     return to_remove
 
 
@@ -352,7 +353,8 @@ def _select_unused_event_data_ids(
             state[0] for state in session.execute(query(data_ids_chunk)).all()
         )
     to_remove = data_ids - seen_ids
-    _LOGGER.debug("Selected %s shared event data to remove", len(to_remove))
+    if _LOGGER.isEnabledFor(logging.DEBUG):
+        _LOGGER.debug("Selected %s shared event data to remove", len(to_remove))
     return to_remove
 
 

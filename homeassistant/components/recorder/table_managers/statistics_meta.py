@@ -19,7 +19,7 @@ from ..util import execute_stmt_lambda_element
 if TYPE_CHECKING:
     from ..core import Recorder
 
-CACHE_SIZE = 8192
+CACHE_SIZE = 16384
 
 _LOGGER = logging.getLogger(__name__)
 
