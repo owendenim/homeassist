@@ -18,7 +18,7 @@ from . import BaseLRUTableManager
 if TYPE_CHECKING:
     from ..core import Recorder
 
-CACHE_SIZE = 8192
+CACHE_SIZE = 16384
 
 
 class StatesMetaManager(BaseLRUTableManager[StatesMeta]):

@@ -40,7 +40,7 @@ class EntityValues:
 
         self._glob = compiled
 
-    @lru_cache(maxsize=MAX_EXPECTED_ENTITY_IDS)
+    @lru_cache(maxsize=4096)
     def get(self, entity_id: str) -> dict[str, str]:
         """Get config for an entity id."""
         domain, _ = split_entity_id(entity_id)

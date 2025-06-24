@@ -789,7 +789,8 @@ class _ScriptRun:
         warned_too_many_loops = False
 
         async def async_run_sequence(iteration: int, extra_msg: str = "") -> None:
-            self._log("Repeating %s: Iteration %i%s", description, iteration, extra_msg)
+            if _LOGGER.isEnabledFor(logging.DEBUG):
+                self._log("Repeating %s: Iteration %i%s", description, iteration, extra_msg)
             with trace_path("sequence"):
                 await self._async_run_script(script)
 

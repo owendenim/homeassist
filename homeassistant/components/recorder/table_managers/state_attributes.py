@@ -26,7 +26,7 @@ if TYPE_CHECKING:
 # - The number of overlapping attributes
 # - How frequently states with overlapping attributes will change
 # - How much memory our low end hardware has
-CACHE_SIZE = 2048
+CACHE_SIZE = 4096
 
 _LOGGER = logging.getLogger(__name__)
 

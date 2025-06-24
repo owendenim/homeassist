@@ -49,8 +49,8 @@ if TYPE_CHECKING:
 _LOGGER = logging.getLogger(__name__)
 
 
-DEFAULT_STATES_BATCHES_PER_PURGE = 20  # We expect ~95% de-dupe rate
-DEFAULT_EVENTS_BATCHES_PER_PURGE = 15  # We expect ~92% de-dupe rate
+DEFAULT_STATES_BATCHES_PER_PURGE = 50  # Increased for faster purges on larger systems
+DEFAULT_EVENTS_BATCHES_PER_PURGE = 40  # We expect ~92% de-dupe rate
 
 
 @retryable_database_job("purge")
@@ -201,7 +201,7 @@ def _purge_states_and_attributes_ids(
             has_remaining_state_ids_to_purge = False
             break
         _purge_state_ids(instance, session, state_ids)
-        attributes_ids_batch = attributes_ids_batch | attributes_ids
+        attributes_ids_batch.update(attributes_ids)
 
     _purge_unused_attributes_ids(instance, session, attributes_ids_batch)
     _LOGGER.debug(
@@ -236,7 +236,7 @@ def _purge_events_and_data_ids(
             has_remaining_event_ids_to_purge = False
             break
         _purge_event_ids(session, event_ids)
-        data_ids_batch = data_ids_batch | data_ids
+        data_ids_batch.update(data_ids)
 
     _purge_unused_data_ids(instance, session, data_ids_batch)
     _LOGGER.debug(
@@ -309,10 +309,11 @@ def _select_unused_attributes_ids(
             state[0] for state in session.execute(query(attributes_ids_chunk)).all()
         )
     to_remove = attributes_ids - seen_ids
-    _LOGGER.debug(
-        "Selected %s shared attributes to remove",
-        len(to_remove),
-    )
+    if _LOGGER.isEnabledFor(logging.DEBUG):
+        _LOGGER.debug(
+            "Selected %s shared attributes to remove",
+            len(to_remove),
+        )
     return to_remove
 
 
@@ -352,7 +353,8 @@ def _select_unused_event_data_ids(
             state[0] for state in session.execute(query(data_ids_chunk)).all()
         )
     to_remove = data_ids - seen_ids
-    _LOGGER.debug("Selected %s shared event data to remove", len(to_remove))
+    if _LOGGER.isEnabledFor(logging.DEBUG):
+        _LOGGER.debug("Selected %s shared event data to remove", len(to_remove))
     return to_remove
 
 
@@ -477,11 +479,12 @@ def _purge_batch_attributes_ids(
     instance: Recorder, session: Session, attributes_ids: set[int]
 ) -> None:
     """Delete old attributes ids in batches of max_bind_vars."""
-    for attributes_ids_chunk in chunked_or_all(attributes_ids, instance.max_bind_vars):
+    for i, attributes_ids_chunk in enumerate(chunked_or_all(attributes_ids, instance.max_bind_vars)):
         deleted_rows = session.execute(
             delete_states_attributes_rows(attributes_ids_chunk)
         )
-        _LOGGER.debug("Deleted %s attribute states", deleted_rows)
+        if i % 10 == 0:
+            _LOGGER.debug("Deleted %s attribute states (batch %d)", deleted_rows, i)
 
     # Evict any entries in the state_attributes_ids cache referring to a purged state
     instance.state_attributes_manager.evict_purged(attributes_ids)
@@ -491,9 +494,10 @@ def _purge_batch_data_ids(
     instance: Recorder, session: Session, data_ids: set[int]
 ) -> None:
     """Delete old event data ids in batches of max_bind_vars."""
-    for data_ids_chunk in chunked_or_all(data_ids, instance.max_bind_vars):
+    for i, data_ids_chunk in enumerate(chunked_or_all(data_ids, instance.max_bind_vars)):
         deleted_rows = session.execute(delete_event_data_rows(data_ids_chunk))
-        _LOGGER.debug("Deleted %s data events", deleted_rows)
+        if i % 10 == 0:
+            _LOGGER.debug("Deleted %s data events (batch %d)", deleted_rows, i)
 
     # Evict any entries in the event_data_ids cache referring to a purged state
     instance.event_data_manager.evict_purged(data_ids)
