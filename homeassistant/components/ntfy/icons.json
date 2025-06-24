@@ -1,9 +1,0 @@
-{
-  "entity": {
-    "notify": {
-      "publish": {
-        "default": "mdi:console-line"
-      }
-    }
-  }
-}
