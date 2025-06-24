@@ -180,9 +180,17 @@ def _purge_states_and_attributes_ids(
     states_batch_size: int,
     purge_before: datetime,
 ) -> bool:
-    """Purge states and linked attributes id in a batch.
-
-    Returns true if there are more states to purge.
+    """
+    Purges states and their associated attribute IDs in batches older than the specified datetime.
+    
+    Removes states and collects linked attribute IDs for deletion, processing up to the given batch size. After purging states, deletes any unused attribute IDs. Returns True if more states remain to be purged, otherwise False.
+    
+    Parameters:
+        states_batch_size (int): The number of state batches to process in this purge cycle.
+        purge_before (datetime): States older than this datetime will be purged.
+    
+    Returns:
+        bool: True if additional states remain to be purged; False if purge is complete.
     """
     database_engine = instance.database_engine
     assert database_engine is not None
@@ -217,9 +225,17 @@ def _purge_events_and_data_ids(
     events_batch_size: int,
     purge_before: datetime,
 ) -> bool:
-    """Purge states and linked attributes id in a batch.
-
-    Returns true if there are more states to purge.
+    """
+    Purge events and their associated data IDs in batches older than a specified datetime.
+    
+    Removes events and linked event data in batches up to the given batch size, then purges any event data IDs that are no longer referenced. Returns True if more events remain to be purged, otherwise False.
+    
+    Parameters:
+        events_batch_size (int): The maximum number of event batches to purge in this operation.
+        purge_before (datetime): The cutoff datetime; only events older than this will be purged.
+    
+    Returns:
+        bool: True if additional events remain to be purged; False if purging is complete.
     """
     has_remaining_event_ids_to_purge = True
     # There are more events relative to data_ids so
@@ -290,7 +306,15 @@ def _select_unused_attributes_ids(
     attributes_ids: set[int],
     database_engine: DatabaseEngine,
 ) -> set[int]:
-    """Return a set of attributes ids that are not used by any states in the db."""
+    """
+    Return attribute IDs from the provided set that are not referenced by any states in the database.
+    
+    Parameters:
+        attributes_ids (set[int]): Set of attribute IDs to check for usage.
+    
+    Returns:
+        set[int]: Attribute IDs that are unused by any states.
+    """
     if not attributes_ids:
         return set()
 
@@ -337,7 +361,15 @@ def _select_unused_event_data_ids(
     data_ids: set[int],
     database_engine: DatabaseEngine,
 ) -> set[int]:
-    """Return a set of event data ids that are not used by any events in the db."""
+    """
+    Return event data IDs from the provided set that are not referenced by any events in the database.
+    
+    Parameters:
+        data_ids (set[int]): Set of event data IDs to check for usage.
+    
+    Returns:
+        set[int]: Event data IDs that are unused and can be safely purged.
+    """
     if not data_ids:
         return set()
 
@@ -478,7 +510,12 @@ def _purge_state_ids(instance: Recorder, session: Session, state_ids: set[int]) 
 def _purge_batch_attributes_ids(
     instance: Recorder, session: Session, attributes_ids: set[int]
 ) -> None:
-    """Delete old attributes ids in batches of max_bind_vars."""
+    """
+    Deletes attribute rows in batches and evicts purged attribute IDs from the state attributes manager cache.
+    
+    Parameters:
+        attributes_ids (set[int]): Set of attribute IDs to delete.
+    """
     for i, attributes_ids_chunk in enumerate(chunked_or_all(attributes_ids, instance.max_bind_vars)):
         deleted_rows = session.execute(
             delete_states_attributes_rows(attributes_ids_chunk)
@@ -493,7 +530,12 @@ def _purge_batch_attributes_ids(
 def _purge_batch_data_ids(
     instance: Recorder, session: Session, data_ids: set[int]
 ) -> None:
-    """Delete old event data ids in batches of max_bind_vars."""
+    """
+    Delete event data rows in batches and evict purged IDs from the event data manager cache.
+    
+    Parameters:
+        data_ids (set[int]): Set of event data IDs to be deleted.
+    """
     for i, data_ids_chunk in enumerate(chunked_or_all(data_ids, instance.max_bind_vars)):
         deleted_rows = session.execute(delete_event_data_rows(data_ids_chunk))
         if i % 10 == 0:

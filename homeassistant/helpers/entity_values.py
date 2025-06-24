@@ -27,7 +27,14 @@ class EntityValues:
         domain: dict[str, dict[str, str]] | None = None,
         glob: dict[str, dict[str, str]] | None = None,
     ) -> None:
-        """Initialize an EntityConfigDict."""
+        """
+        Initialize an EntityValues instance with optional exact, domain, and glob pattern configuration mappings.
+        
+        Parameters:
+            exact: Optional mapping of exact entity IDs to their configuration dictionaries.
+            domain: Optional mapping of domains to their configuration dictionaries.
+            glob: Optional mapping of glob-style string patterns to their configuration dictionaries.
+        """
         self._exact = exact
         self._domain = domain
 
@@ -42,7 +49,17 @@ class EntityValues:
 
     @lru_cache(maxsize=4096)
     def get(self, entity_id: str) -> dict[str, str]:
-        """Get config for an entity id."""
+        """
+        Retrieve the aggregated configuration dictionary for a given entity ID.
+        
+        The method combines configuration values from exact entity ID matches, domain-based matches, and glob pattern matches, with later matches overriding earlier ones if keys overlap.
+        
+        Parameters:
+            entity_id (str): The entity ID for which to retrieve configuration.
+        
+        Returns:
+            dict[str, str]: The combined configuration dictionary for the specified entity ID.
+        """
         domain, _ = split_entity_id(entity_id)
         result: dict[str, str] = {}
 
